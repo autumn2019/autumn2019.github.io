@@ -285,6 +285,187 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.mid-autumn.com/2019/05/21/Go-Modules-使用示例/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="王鹏">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="忽然一夜清香发，散作乾坤万里春">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/21/Go-Modules-使用示例/" class="post-title-link" itemprop="url">Go Modules 使用示例</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-05-21 15:48:00 / Modified: 16:41:40" itemprop="dateCreated datePublished" datetime="2019-05-21T15:48:00+08:00">2019-05-21</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote><p>参考页面<a href="https://www.njphper.com/posts/8b58ea6d.html" target="_blank" rel="noopener">Go Modules 详解使用</a></p>
+</blockquote>
+<h1 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h1><p>自从<code>Go</code>官方从去年推出 1.11 之后，增加新的依赖管理模块并且更加易于管理项目中所需要的模块。模块是存储在文件树中的 Go 包的集合，其根目录中包含 go.mod 文件。 go.mod 文件定义了模块的模块路径，它也是用于根目录的导入路径，以及它的依赖性要求。每个依赖性要求都被写为模块路径和特定语义版本。</p>
+<p>从 Go 1.11 开始，Go 允许在 $GOPATH/src 外的任何目录下使用 go.mod 创建项目。在 $GOPATH/src 中，为了兼容性，Go 命令仍然在旧的 GOPATH 模式下运行。从 Go 1.13 开始，模块模式将成为默认模式。</p>
+<p>本文将介绍使用模块开发 Go 代码时出现的一系列常见操作：</p>
+<ul>
+<li>创建一个新模块   </li>
+<li>添加依赖项</li>
+<li>升级依赖项</li>
+<li>删除未使用的依赖项</li>
+<li>使用<code>vendor</code>目录</li>
+</ul>
+<p>下面使用的案例都是以<code>GIN</code>模块为例。<br>在这之前呢，需要先设置一些环境变量：</p>
+<figure class="highlight shell"><figcaption><span>envvars</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export GO111MODULE=on</span><br><span class="line">export GOPROXY=https://goproxy.io // 设置代理</span><br></pre></td></tr></table></figure>
+<h1 id="创建一个新模块"><a href="#创建一个新模块" class="headerlink" title="创建一个新模块"></a>创建一个新模块</h1><p>你可以在 $GOPATH/src 之外的任何地方创建一个新的目录。比如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir backend &amp;&amp; cd backend</span><br></pre></td></tr></table></figure>
+<p>然后初始化<code>go mod init backend</code>，成功之后你会发现目录下会生成一个<code>go.mod</code>文件.</p>
+<figure class="highlight shell"><figcaption><span>go.mod</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module backend</span><br><span class="line"></span><br><span class="line">go 1.12</span><br></pre></td></tr></table></figure>
+<h1 id="添加依赖项"><a href="#添加依赖项" class="headerlink" title="添加依赖项"></a>添加依赖项</h1><p>创建一个文件 main.go 然后加入以下代码，这里直接 import 了 gin 的依赖包。</p>
+<figure class="highlight golang"><figcaption><span>main.go</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"github.com/gin-gonic/gin"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	r := gin.Default()</span><br><span class="line">	r.GET(<span class="string">"/ping"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		c.JSON(<span class="number">200</span>, gin.H&#123;</span><br><span class="line">			<span class="string">"message"</span>: <span class="string">"pong"</span>,</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;)</span><br><span class="line">	r.Run() <span class="comment">// listen and serve on 0.0.0.0:8080</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>go build 之后，会在 go.mod 引入所需要的依赖包。之后再来看看 go.mod 文件的情况。</p>
+<figure class="highlight shell"><figcaption><span>go.mod</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">module backend</span><br><span class="line"></span><br><span class="line">go 1.12</span><br><span class="line"></span><br><span class="line">require (</span><br><span class="line">	github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3 // indirect</span><br><span class="line">	github.com/gin-gonic/gin v1.3.0</span><br><span class="line">	github.com/golang/protobuf v1.3.1 // indirect</span><br><span class="line">	github.com/mattn/go-isatty v0.0.7 // indirect</span><br><span class="line">	github.com/ugorji/go v1.1.4 // indirect</span><br><span class="line">	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect</span><br><span class="line">	gopkg.in/yaml.v2 v2.2.2 // indirect</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>require 就是 gin 框架所需要的所有依赖包 并且在每个依赖包的后面已经表明了版本号</p>
+<h1 id="升级依赖项"><a href="#升级依赖项" class="headerlink" title="升级依赖项"></a>升级依赖项</h1><p>首先我们需要查看以下我们使用到的依赖列表</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> go list -m all</span><br><span class="line">// 你会看到所有项目使用的依赖包</span><br><span class="line">backend</span><br><span class="line">github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3</span><br><span class="line">github.com/gin-gonic/gin v1.3.0</span><br><span class="line">github.com/golang/protobuf v1.3.1</span><br><span class="line">github.com/mattn/go-isatty v0.0.7</span><br><span class="line">github.com/ugorji/go v1.1.4</span><br><span class="line">golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223</span><br><span class="line">gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405</span><br><span class="line">gopkg.in/go-playground/validator.v8 v8.18.2</span><br><span class="line">gopkg.in/yaml.v2 v2.2.2</span><br></pre></td></tr></table></figure>
+<p>因为这里使用的是最新的版本，无法升级，所以这里给出一个回退的例子。将 GIN 框架的版本回退到上个版本。这里需要使用一个命令查看依赖的版本历史。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> go list -m -versions github.com/gin-gonic/gin</span><br><span class="line">// 将会列出 Gin 版本历史</span><br><span class="line">github.com/gin-gonic/gin v1.1.1 v1.1.2 v1.1.3 v1.1.4 v1.3.0</span><br></pre></td></tr></table></figure>
+<p>将版本更新到上个版本，这里只是个演示。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&gt;</span> go get github.com/gin-gonic/gin@v1.1.4 // 只需要在依赖后面加上 @version 就可以了</span><br><span class="line"><span class="meta">&gt;</span> go list -m all</span><br><span class="line">// 看到了版本变化</span><br><span class="line">github.com/gin-gonic/gin v1.1.4</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>或者可以使用 go mod来进行版本的切换, 这样就需要两个步骤了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> go mod edit -require="github.com/gin-gonic/gin@v1.1.4" // 修改 go.mod 文件</span><br><span class="line"><span class="meta">&gt;</span> go tidy //下载更新依赖</span><br></pre></td></tr></table></figure>
+<p>go.tidy 会自动清理掉不需要的依赖项，同时可以将依赖项更新到当前版本</p>
+<p>使用起来这是一个很简单过程，只需要几个命令，你便可以知道依赖的版本信息，以及自由选择安装的版本，一切都变得这么简单。</p>
+<h1 id="删除未使用的依赖项"><a href="#删除未使用的依赖项" class="headerlink" title="删除未使用的依赖项"></a>删除未使用的依赖项</h1><p>如果你在项目过程需要移除一些不需要的依赖，可以使用下面的命令来执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span>go mod tidy</span><br></pre></td></tr></table></figure>
+<p>更多关于 go mod 的使用命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span>$ go mod</span><br><span class="line">The commands are:</span><br><span class="line"></span><br><span class="line">        download    download modules to local cache</span><br><span class="line">        edit        edit go.mod from tools or scripts</span><br><span class="line">        graph       print module requirement graph</span><br><span class="line">        init        initialize new module in current directory</span><br><span class="line">        tidy        add missing and remove unused modules</span><br><span class="line">        vendor      make vendored copy of dependencies</span><br><span class="line">        verify      verify dependencies have expected content</span><br><span class="line">        why         explain why packages or modules are needed</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="使用-vendor-目录"><a href="#使用-vendor-目录" class="headerlink" title="使用 vendor 目录"></a>使用 vendor 目录</h1><p>如果你不喜欢<code>go mod</code>的缓存方式，你可以使用<code>go mod vendor</code>回到 godep 或 govendor 使用的 vendor 目录进行包管理的方式。<br>当然这个命令并不能让你从godep之类的工具迁移到<code>go modules</code>，它只是单纯地把<code>go.sum</code>中的所有依赖下载到 vendor 目录里，如果你用它迁移 godep 你会发现 vendor 目录里的包会和 godep 指定的产生相当大的差异，所以请务必不要这样做。<br>使用<code>go build -mod=vendor</code>来构建项目，因为在<code>go modules</code>模式下<code>go build</code>是屏蔽 vendor 机制的，所以需要特定参数重新开启 vendor 机制:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go build -mod=vendor</span><br><span class="line">./hello</span><br><span class="line">hello world!</span><br></pre></td></tr></table></figure>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>Go Module 是 Go 依赖管理的未来。 目前只有 1.11 和 1.12 版本支持该功能，介绍了 Go 依赖管理的功能。更多的功能会在以后补充。也欢迎补充完善。最后如果你是使用<code>Goland</code>, 请移步这里<a href="https://blog.jetbrains.com/go/2019/01/22/working-with-go-modules/" target="_blank" rel="noopener">Working with Go Modules</a> 阅读关于使用 Modules 开发</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://blog.mid-autumn.com/2019/01/14/外部网络直接访问Docker容器方案/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -895,7 +1076,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-count">4</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -945,7 +1126,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">10</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">tags</span>
                   
                 </div>
@@ -1135,6 +1320,8 @@
 
   
   
+    
+      
     
       
     
