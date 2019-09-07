@@ -1,0 +1,4 @@
+[submodule "themes/next"]
+	path = themes/next
+	url = https://github.com/theme-next/hexo-theme-next.git
+	branch = v6.7.0
