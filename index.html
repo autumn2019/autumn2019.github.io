@@ -286,6 +286,167 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.mid-autumn.com/2019/06/13/CoreOS与Kubernetes/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="王鹏">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="忽然一夜清香发，散作乾坤万里春">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/06/13/CoreOS与Kubernetes/" class="post-title-link" itemprop="url">CoreOS与Kubernetes</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-06-13 16:59:16" itemprop="dateCreated datePublished" datetime="2019-06-13T16:59:16+08:00">2019-06-13</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-06-15 17:12:49" itemprop="dateModified" datetime="2019-06-15T17:12:49+08:00">2019-06-15</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在此之前，运行Docker的环境，主要是以Ubuntu主机为主，编排工具也主要是docker-compose。<br>到现在，docker-compose以逐渐不能满足我们日常对运维部署的需要，而kubernetes也日益的作为我们日常应用部署的主要编排工具。  </p>
+<p>随之，CoreOS也进入了替代Ubuntu作为我们docker运行的宿主操作系统的日程。  </p>
+<p>本文主要记录CoreOS及Kubernetes的安装工作。  </p>
+<h1 id="CoreOS的安装"><a href="#CoreOS的安装" class="headerlink" title="CoreOS的安装"></a>CoreOS的安装</h1><h2 id="镜像制作"><a href="#镜像制作" class="headerlink" title="镜像制作"></a>镜像制作</h2><h2 id="ignition-yaml及ignition-json"><a href="#ignition-yaml及ignition-json" class="headerlink" title="ignition.yaml及ignition.json"></a>ignition.yaml及ignition.json</h2><h3 id="ignition-yaml"><a href="#ignition-yaml" class="headerlink" title="ignition.yaml"></a>ignition.yaml</h3><figure class="highlight yaml"><figcaption><span>ignition.yaml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">etcd:</span></span><br><span class="line"><span class="attr">  version:</span> <span class="number">3.1</span><span class="number">.6</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">coreos91</span></span><br><span class="line"><span class="attr">  advertise_client_urls:</span> <span class="attr">http://192.168.10.91:2379</span></span><br><span class="line"><span class="attr">  initial_advertise_peer_urls:</span> <span class="attr">http://192.168.10.91:2380</span></span><br><span class="line"><span class="attr">  listen_client_urls:</span> <span class="attr">http://0.0.0.0:2379</span></span><br><span class="line"><span class="attr">  listen_peer_urls:</span> <span class="attr">http://192.168.10.91:2380</span></span><br><span class="line"><span class="attr">  initial_cluster:</span> <span class="string">coreos91=http://192.168.10.91:2380</span></span><br><span class="line"></span><br><span class="line"><span class="attr">passwd:</span></span><br><span class="line"><span class="attr">  users:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">core</span></span><br><span class="line"><span class="attr">      password_hash:</span> <span class="string">"$6$rounds=4096$xZ9xIGea/SY$jLa.mSbH0UYZB9AjjOrvG.njyUiJBWs1lTGDCe.9ORRhWxhDdAG/b64D1ae/E4IJECnUOpH1r0pOvJPyvPDXE1"</span></span><br><span class="line"><span class="attr">      ssh_authorized_keys:</span> </span><br><span class="line"><span class="bullet">        -</span> <span class="string">ssh-rsa</span>  <span class="string">AAAAB3NzaC1yc2EAAAADAQABAAABAQDEObKTPr7gijPRdXDMfAQrmnhO6ZQz8pp+gXIx5h66bGhNrqWsq+IaMeujzkNskvP3NOmszU6BlsA3OEx6UWmmwawff/G04YUNXxDtI9Bx5GO1JW+dxr/unP33mhwMaQplKlvyuDAJwVMHHKIsn5NJv3qpfJhdWcHKK8/z1lXlwdie6sf/qKuNdo/WL3o4p5/K7IS+bkP7q6VeqHWl+jBEh1GzMtvcGLLhNpDggZH5SraAhtqK6bP51FUs/DrvdnXW6R8iQs2k2KMm6aCDq7NICO/2/YgOJN8sT9xLEynD39fqek58nqySks916//GUKPjA9bgJAPcbAPZ80B4+GQr</span></span><br><span class="line"><span class="attr">      groups:</span> </span><br><span class="line"><span class="bullet">        -</span> <span class="string">wheel</span> </span><br><span class="line"><span class="bullet">        -</span> <span class="string">sudo</span> </span><br><span class="line"><span class="bullet">        -</span> <span class="string">docker</span></span><br><span class="line"></span><br><span class="line"><span class="attr">systemd:</span></span><br><span class="line"><span class="attr">  units:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">flanneld.service</span></span><br><span class="line"><span class="attr">      enable:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">      dropins:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="number">50</span><span class="bullet">-network-config.conf</span></span><br><span class="line"><span class="attr">        contents:</span> <span class="string">|</span></span><br><span class="line"><span class="string">          [Service]</span></span><br><span class="line"><span class="string">          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '&#123;"Network":"10.1.0.0/16", "Backend": &#123;"Type": "vxlan"&#125;&#125;'</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span><span class="attr">networkd:</span></span><br><span class="line"><span class="attr">  units:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">static.network</span></span><br><span class="line"><span class="attr">      contents:</span> <span class="string">|</span></span><br><span class="line"><span class="string">        [Match]</span></span><br><span class="line"><span class="string">        Name=enp0s31f6</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        [Network]</span></span><br><span class="line"><span class="string">        Address=192.168.10.91/24</span></span><br><span class="line"><span class="string">        Gateway=192.168.10.1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span><span class="attr">storage:</span></span><br><span class="line"><span class="attr">  files:</span></span><br><span class="line"><span class="attr">    - filesystem:</span> <span class="string">"root"</span></span><br><span class="line"><span class="attr">      path:</span>       <span class="string">"/etc/hostname"</span></span><br><span class="line"><span class="attr">      mode:</span>       <span class="number">0644</span></span><br><span class="line"><span class="attr">      contents:</span></span><br><span class="line"><span class="attr">        inline:</span> <span class="string">coreos91</span></span><br><span class="line"><span class="attr">    - filesystem:</span> <span class="string">"root"</span></span><br><span class="line"><span class="attr">      path:</span>       <span class="string">"/etc/resolv.conf"</span></span><br><span class="line"><span class="attr">      mode:</span>       <span class="number">0644</span></span><br><span class="line"><span class="attr">      contents:</span></span><br><span class="line"><span class="attr">        inline:</span> <span class="string">|</span></span><br><span class="line"><span class="string">          nameserver 192.168.10.1</span></span><br></pre></td></tr></table></figure>
+<h3 id="ignition-json"><a href="#ignition-json" class="headerlink" title="ignition.json"></a>ignition.json</h3><figure class="highlight yaml"><figcaption><span>ignition.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#123;</span></span><br><span class="line">	<span class="string">"ignition"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">		<span class="string">"config"</span><span class="string">:</span> <span class="string">&#123;&#125;,</span></span><br><span class="line">		<span class="string">"security"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">			<span class="string">"tls"</span><span class="string">:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">		<span class="string">&#125;,</span></span><br><span class="line">		<span class="string">"timeouts"</span><span class="string">:</span> <span class="string">&#123;&#125;,</span></span><br><span class="line">		<span class="string">"version"</span><span class="string">:</span> <span class="string">"2.2.0"</span></span><br><span class="line">	<span class="string">&#125;,</span></span><br><span class="line">	<span class="string">"networkd"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">		<span class="string">"units"</span><span class="string">:</span> <span class="string">[&#123;</span></span><br><span class="line">			<span class="string">"contents"</span><span class="string">:</span> <span class="string">"[Match]\nName=enp0s31f6\n\n[Network]\nAddress=192.168.10.91/24\nGateway=192.168.10.1\n"</span><span class="string">,</span></span><br><span class="line">			<span class="string">"name"</span><span class="string">:</span> <span class="string">"static.network"</span></span><br><span class="line">		<span class="string">&#125;]</span></span><br><span class="line">	<span class="string">&#125;,</span></span><br><span class="line">	<span class="string">"passwd"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">		<span class="string">"users"</span><span class="string">:</span> <span class="string">[&#123;</span></span><br><span class="line">			<span class="string">"groups"</span><span class="string">:</span> <span class="string">["wheel",</span> <span class="string">"sudo"</span><span class="string">,</span> <span class="string">"docker"</span><span class="string">],</span></span><br><span class="line">			<span class="string">"name"</span><span class="string">:</span> <span class="string">"core"</span><span class="string">,</span></span><br><span class="line">			<span class="string">"passwordHash"</span><span class="string">:</span> <span class="string">"$6$rounds=4096$xZ9xIGea/SY$jLa.mSbH0UYZB9AjjOrvG.njyUiJBWs1lTGDCe.9ORRhWxhDdAG/b64D1ae/E4IJECnUOpH1r0pOvJPyvPDXE1"</span><span class="string">,</span></span><br><span class="line">			<span class="string">"sshAuthorizedKeys"</span><span class="string">:</span> <span class="string">["ssh-rsa</span>  <span class="string">AAAAB3NzaC1yc2EAAAADAQABAAABAQDEObKTPr7gijPRdXDMfAQrmnhO6ZQz8pp+gXIx5h66bGhNrqWsq+IaMeujzkNskvP3NOmszU6BlsA3OEx6UWmmwawff/G04YUNXxDtI9Bx5GO1JW+dxr/unP33mhwMaQplKlvyuDAJwVMHHKIsn5NJv3qpfJhdWcHKK8/z1lXlwdie6sf/qKuNdo/WL3o4p5/K7IS+bkP7q6VeqHWl+jBEh1GzMtvcGLLhNpDggZH5SraAhtqK6bP51FUs/DrvdnXW6R8iQs2k2KMm6aCDq7NICO/2/YgOJN8sT9xLEynD39fqek58nqySks916//GUKPjA9bgJAPcbAPZ80B4+GQr"]</span></span><br><span class="line">		<span class="string">&#125;]</span></span><br><span class="line">	<span class="string">&#125;,</span></span><br><span class="line">	<span class="string">"storage"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">		<span class="string">"files"</span><span class="string">:</span> <span class="string">[&#123;</span></span><br><span class="line">			<span class="string">"filesystem"</span><span class="string">:</span> <span class="string">"root"</span><span class="string">,</span></span><br><span class="line">			<span class="string">"path"</span><span class="string">:</span> <span class="string">"/etc/hostname"</span><span class="string">,</span></span><br><span class="line">			<span class="string">"contents"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">				<span class="string">"source"</span><span class="string">:</span> <span class="string">"data:,coreos91"</span><span class="string">,</span></span><br><span class="line">				<span class="string">"verification"</span><span class="string">:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">			<span class="string">&#125;,</span></span><br><span class="line">			<span class="string">"mode"</span><span class="string">:</span> <span class="number">420</span></span><br><span class="line">		<span class="string">&#125;,</span> <span class="string">&#123;</span></span><br><span class="line">			<span class="string">"filesystem"</span><span class="string">:</span> <span class="string">"root"</span><span class="string">,</span></span><br><span class="line">			<span class="string">"path"</span><span class="string">:</span> <span class="string">"/etc/resolv.conf"</span><span class="string">,</span></span><br><span class="line">			<span class="string">"contents"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">				<span class="string">"source"</span><span class="string">:</span> <span class="string">"data:,nameserver%20192.168.10.1%0A"</span><span class="string">,</span></span><br><span class="line">				<span class="string">"verification"</span><span class="string">:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">			<span class="string">&#125;,</span></span><br><span class="line">			<span class="string">"mode"</span><span class="string">:</span> <span class="number">420</span></span><br><span class="line">		<span class="string">&#125;]</span></span><br><span class="line">	<span class="string">&#125;,</span></span><br><span class="line">	<span class="string">"systemd"</span><span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">		<span class="string">"units"</span><span class="string">:</span> <span class="string">[&#123;</span></span><br><span class="line">			<span class="string">"dropins"</span><span class="string">:</span> <span class="string">[&#123;</span></span><br><span class="line">				<span class="string">"contents"</span><span class="string">:</span> <span class="string">"[Service]\nEnvironment=\"ETCD_IMAGE_TAG=v3.1.6\"\nExecStart=\nExecStart=/usr/lib/coreos/etcd-wrapper $ETCD_OPTS \\\n  --name=\"coreos91\" \\\n  --listen-peer-urls=\"http://192.168.10.91:2380\" \\\n  --listen-client-urls=\"http://0.0.0.0:2379\" \\\n  --initial-advertise-peer-urls=\"http://192.168.10.91:2380\" \\\n  --initial-cluster=\"coreos91=http://192.168.10.91:2380\" \\\n  --advertise-client-urls=\"http://192.168.10.91:2379\""</span><span class="string">,</span></span><br><span class="line">				<span class="string">"name"</span><span class="string">:</span> <span class="string">"20-clct-etcd-member.conf"</span></span><br><span class="line">			<span class="string">&#125;],</span></span><br><span class="line">			<span class="string">"enable"</span><span class="string">:</span> <span class="literal">true</span><span class="string">,</span></span><br><span class="line">			<span class="string">"name"</span><span class="string">:</span> <span class="string">"etcd-member.service"</span></span><br><span class="line">		<span class="string">&#125;,</span> <span class="string">&#123;</span></span><br><span class="line">			<span class="string">"dropins"</span><span class="string">:</span> <span class="string">[&#123;</span></span><br><span class="line">				<span class="string">"contents"</span><span class="string">:</span> <span class="string">"[Service]\nExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '&#123;\"Network\":\"10.1.0.0/16\", \"Backend\": &#123;\"Type\": \"vxlan\"&#125;&#125;'\n"</span><span class="string">,</span></span><br><span class="line">				<span class="string">"name"</span><span class="string">:</span> <span class="string">"50-network-config.conf"</span></span><br><span class="line">			<span class="string">&#125;],</span></span><br><span class="line">			<span class="string">"enable"</span><span class="string">:</span> <span class="literal">true</span><span class="string">,</span></span><br><span class="line">			<span class="string">"name"</span><span class="string">:</span> <span class="string">"flanneld.service"</span></span><br><span class="line">		<span class="string">&#125;]</span></span><br><span class="line">	<span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<h1 id="Kubernetes的安装"><a href="#Kubernetes的安装" class="headerlink" title="Kubernetes的安装"></a>Kubernetes的安装</h1><h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><h2 id="附录一-Cluster-TLS-using-OpenSSL"><a href="#附录一-Cluster-TLS-using-OpenSSL" class="headerlink" title="附录一 Cluster TLS using OpenSSL"></a>附录一 Cluster TLS using OpenSSL</h2><p>参考地址：<a href="https://coreos.com/kubernetes/docs/1.0.6/openssl.html" target="_blank" rel="noopener">Cluster TLS using OpenSSL</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">export K8S_SERVICE_IP=10.3.0.1</span><br><span class="line">export MASTER_HOST=192.168.10.91</span><br><span class="line"></span><br><span class="line">openssl genrsa -out ca-key.pem 2048</span><br><span class="line"></span><br><span class="line">openssl req -x509 -new -nodes -key ca-key.pem -days 10000 -out ca.pem -subj "/CN=kube-ca"</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="一些CoreOS命令"><a href="#一些CoreOS命令" class="headerlink" title="一些CoreOS命令"></a>一些CoreOS命令</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo hostnamectl set-hostname coreos1 #修改主机名</span><br><span class="line">setenforce 1/0 #开启关闭SELinux</span><br><span class="line">getenforce #查看SELinux状态</span><br><span class="line">timedatectl #查看系统时间</span><br><span class="line">timedatectl list-timezones #查看支持的时区列表</span><br><span class="line">timedatectl set-timezone Asia/Shanghai #设置时区为上海</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://blog.mid-autumn.com/2019/05/21/Go-Modules-使用示例/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1080,7 +1241,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -1134,7 +1295,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">12</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">tags</span>
                   
                 </div>
