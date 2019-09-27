@@ -4,7 +4,8 @@ date: 2019-05-21 15:48:00
 tags:
 - GO
 - Go Modules
-
+categories:
+- GoLang
 ---
 
 {% blockquote %}

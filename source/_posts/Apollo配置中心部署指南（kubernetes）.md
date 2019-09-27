@@ -8,6 +8,8 @@ tags:
   - k8s
   - 配置中心
   - spring boot
+categories:
+- 微服务
 ---
 
 # 前言

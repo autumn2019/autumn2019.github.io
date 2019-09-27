@@ -6,6 +6,8 @@ tags:
   - K8s
   - Kubernetes
   - Docker
+categories:
+  - Kubernetes
 ---
 
 # 前言

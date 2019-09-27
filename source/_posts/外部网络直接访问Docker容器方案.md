@@ -7,6 +7,8 @@ tags:
 - 微服务
 - erueka
 - 外部网络访问容器
+categories:
+- docker
 ---
 
 # 说明  
